@@ -3,28 +3,43 @@ import fetch from "node-fetch";
 import dotenv from 'dotenv';
 dotenv.config();
 
-const proofRaw = JSON.parse(fs.readFileSync("build/proof.json", "utf8"));
-const publicSignalsRaw = JSON.parse(fs.readFileSync("build/public.json", "utf8"));
+const proofRaw = JSON.parse(fs.readFileSync("build/proof.json"));
+const publicSignalsRaw = JSON.parse(fs.readFileSync("build/public.json"));
 
 const CONTRACT_ADDRESS=process.env.CONTRACT_ADDRESS;
 
-const a = [proofRaw.pi_a[0], proofRaw.pi_a[1]];
+const a = [BigInt(proofRaw.pi_a[0]), BigInt(proofRaw.pi_a[1])];
 
 const b = [
-  [proofRaw.pi_b[0][0], proofRaw.pi_b[0][1]],
-  [proofRaw.pi_b[1][0], proofRaw.pi_b[1][1]]
+  [BigInt(proofRaw.pi_b[0][0]), BigInt(proofRaw.pi_b[0][1])],
+  [BigInt(proofRaw.pi_b[1][0]), BigInt(proofRaw.pi_b[1][1])]
 ];
 
-const c = [proofRaw.pi_c[0], proofRaw.pi_c[1]];
+const c = [BigInt(proofRaw.pi_c[0]), BigInt(proofRaw.pi_c[1])];
 
-const pubSignals = publicSignalsRaw;
+const pubSignals = publicSignalsRaw.map(s => BigInt(s));
 
-const requestBody = {
+const data = {
   a,
   b,
   c,
   pubSignals: pubSignals
 };
+
+function bigIntToString(obj) {
+  if (typeof obj === "bigint") return obj.toString();
+  if (Array.isArray(obj)) return obj.map(bigIntToString);
+  if (obj !== null && typeof obj === "object") {
+    const res = {};
+    for (const key in obj) {
+      res[key] = bigIntToString(obj[key]);
+    }
+    return res;
+  }
+  return obj;
+}
+
+const requestBody = bigIntToString(data)
 
 const THIRDWEB_SECRET_KEY = process.env.THIRDWEB_SECRET_KEY;
 const CHAIN_ID=process.env.CHAIN_ID;
