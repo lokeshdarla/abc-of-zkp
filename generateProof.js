@@ -21,6 +21,7 @@ async function main() {
 
   fs.writeFileSync("build/proof.json", JSON.stringify(proof, null, 2));
   fs.writeFileSync("build/public.json", JSON.stringify(publicSignals, null, 2));
+  process.exit(0);
 }
 
 main().catch(console.error);
